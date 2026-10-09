@@ -8,7 +8,7 @@ mkdir -p run reports
 
 start_region () {  # $1=region $2=port
   REGION=$1 STATE_DIR=state/region-$1 WARMUP_SECONDS=${WARMUP_SECONDS:-6} \
-  python3 -m uvicorn serving.app:app --host 127.0.0.1 --port $2 --log-level warning \
+  nohup python3 -m uvicorn serving.app:app --host 0.0.0.0 --port $2 --log-level warning \
     > run/region-$1.log 2>&1 &
   echo $! > run/region-$1.pid
   echo "region-$1 pid=$(cat run/region-$1.pid) port=$2"
@@ -16,8 +16,8 @@ start_region () {  # $1=region $2=port
 
 start_region a 8001
 start_region b 8002
-EDGE_TTL_SECONDS=${EDGE_TTL_SECONDS:-5} python3 -m uvicorn edge.proxy:app \
-  --host 127.0.0.1 --port 8080 --log-level warning > run/edge.log 2>&1 &
+EDGE_TTL_SECONDS=${EDGE_TTL_SECONDS:-5} nohup python3 -m uvicorn edge.proxy:app \
+  --host 0.0.0.0 --port 8080 --log-level warning > run/edge.log 2>&1 &
 echo $! > run/edge.pid
 echo "edge pid=$(cat run/edge.pid) port=8080"
 
